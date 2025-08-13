@@ -134,7 +134,7 @@ router.post("/change-password", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isValidCurrentPassword = await user.comparePassword(currentPassword);
+    const isValidCurrentPassword = user.password === currentPassword;
     if (!isValidCurrentPassword) {
       return res.status(400).json({ error: "Current password is incorrect" });
     }
