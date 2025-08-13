@@ -9,6 +9,7 @@ import {
   additionalSectionController,
   additionalSectionSpecialController,
   portfolioOverviewController,
+  myWorkController,
 } from "../controllers/portfolio.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
@@ -54,6 +55,21 @@ router.get("/work-experience/current", workExperienceSpecialController.getCurren
 
 // Public Additional Sections
 router.get("/additional/:type", additionalSectionSpecialController.getByType);
+
+// Public MyWork
+router.get("/mywork", (req, res) => {
+  req.query.isActive = "true";
+  myWorkController.getAll(req, res);
+});
+router.get("/mywork/:id", myWorkController.getById);
+
+// ===========================================
+// USER ROUTES (Authenticated - Non-admin)
+// ===========================================
+
+// Normal user access to MyWork (authenticated, no admin role required)
+router.get("/user/mywork", authMiddleware, myWorkController.getAll);
+router.get("/user/mywork/:id", authMiddleware, myWorkController.getById);
 
 // ===========================================
 // ADMIN ROUTES (Protected - CRUD Operations)
@@ -112,5 +128,14 @@ router.delete("/admin/additional/bulk/delete", authMiddleware, additionalSection
 
 // Additional Sections by Type (Admin)
 router.get("/admin/additional/type/:type", authMiddleware, additionalSectionSpecialController.getByType);
+
+// MyWork CRUD
+router.get("/admin/mywork", authMiddleware, myWorkController.getAll);
+router.get("/admin/mywork/:id", authMiddleware, myWorkController.getById);
+router.post("/admin/mywork", authMiddleware, myWorkController.create);
+router.patch("/admin/mywork/:id", authMiddleware, myWorkController.update);
+router.delete("/admin/mywork/:id", authMiddleware, myWorkController.delete);
+router.patch("/admin/mywork/bulk/update", authMiddleware, myWorkController.bulkUpdate);
+router.delete("/admin/mywork/bulk/delete", authMiddleware, myWorkController.bulkDelete);
 
 export default router;

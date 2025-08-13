@@ -12,37 +12,39 @@ const githubService = new GitHubService();
 const getGitHubCredentials = () => {
   const username = process.env.GITHUB_USERNAME;
   const token = process.env.GITHUB_TOKEN;
-  
+
   if (!username || !token) {
-    throw new Error("GitHub credentials not configured. Please set GITHUB_USERNAME and GITHUB_TOKEN in environment variables.");
+    throw new Error(
+      "GitHub credentials not configured. Please set GITHUB_USERNAME and GITHUB_TOKEN in environment variables."
+    );
   }
-  
+
   return { username, token };
 };
 
 export const fetchAndSaveGitHub = async (req: Request, res: Response) => {
   try {
     const { options = {} } = req.body;
-    
+
     // Get credentials from environment
     const { username, token } = getGitHubCredentials();
 
     const provider = new GitHubProvider(username, token);
     const syncResult = await socialService.syncProvider(provider, options);
-    
+
     logger.info(`GitHub sync completed for ${username}`, syncResult);
-    
+
     res.json({
       success: true,
       message: `Successfully synced ${syncResult.total} repositories for ${username}`,
       username,
-      ...syncResult
+      ...syncResult,
     });
   } catch (error) {
     logger.error("Error in fetchAndSaveGitHub:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to fetch GitHub repositories",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
@@ -56,36 +58,36 @@ export const getPortfolioRepositories = async (req: Request, res: Response) => {
       category,
       limit = 50,
       offset = 0,
-      sort = 'displayOrder',
-      order = 'asc'
+      sort = "displayOrder",
+      order = "asc",
     } = req.query;
 
     // Build query for published repos only
-    const query: any = { 
-      provider: 'github',
+    const query: any = {
+      provider: "github",
       isPublished: true,
-      hidden: false 
+      hidden: false,
     };
-    
-    if (featured !== undefined) query.isFeatured = featured === 'true';
+
+    if (featured !== undefined) query.isFeatured = featured === "true";
     if (language) query.language = language;
     if (category) query.category = category;
 
     // Build sort object
     const sortObj: any = {};
-    if (sort === 'stars') sortObj.stars = order === 'desc' ? -1 : 1;
-    else if (sort === 'updated') sortObj.updatedAt = order === 'desc' ? -1 : 1;
-    else if (sort === 'created') sortObj.createdAt = order === 'desc' ? -1 : 1;
-    else if (sort === 'name') sortObj.title = order === 'desc' ? -1 : 1;
-    else sortObj.displayOrder = order === 'desc' ? -1 : 1;
+    if (sort === "stars") sortObj.stars = order === "desc" ? -1 : 1;
+    else if (sort === "updated") sortObj.updatedAt = order === "desc" ? -1 : 1;
+    else if (sort === "created") sortObj.createdAt = order === "desc" ? -1 : 1;
+    else if (sort === "name") sortObj.title = order === "desc" ? -1 : 1;
+    else sortObj.displayOrder = order === "desc" ? -1 : 1;
 
     const [repos, total] = await Promise.all([
       Repo.find(query)
         .sort(sortObj)
         .limit(Number(limit))
         .skip(Number(offset))
-        .select('-raw'),
-      Repo.countDocuments(query)
+        .select("-raw"),
+      Repo.countDocuments(query),
     ]);
 
     res.json({
@@ -107,7 +109,7 @@ export const getPortfolioRepositories = async (req: Request, res: Response) => {
 export const getAdminRepositories = async (req: Request, res: Response) => {
   try {
     const {
-      provider = 'github',
+      provider = "github",
       featured,
       hidden,
       published,
@@ -116,26 +118,26 @@ export const getAdminRepositories = async (req: Request, res: Response) => {
       isFork,
       limit = 50,
       offset = 0,
-      sort = 'fetchedAt',
-      order = 'desc'
+      sort = "fetchedAt",
+      order = "desc",
     } = req.query;
 
     // Build query
     const query: any = { provider };
-    
-    if (featured !== undefined) query.isFeatured = featured === 'true';
-    if (hidden !== undefined) query.hidden = hidden === 'true';
-    if (published !== undefined) query.isPublished = published === 'true';
+
+    if (featured !== undefined) query.isFeatured = featured === "true";
+    if (hidden !== undefined) query.hidden = hidden === "true";
+    if (published !== undefined) query.isPublished = published === "true";
     if (language) query.language = language;
     if (category) query.category = category;
-    if (isFork !== undefined) query.isFork = isFork === 'true';
+    if (isFork !== undefined) query.isFork = isFork === "true";
 
     // Build sort object
     const sortObj: any = {};
-    if (sort === 'stars') sortObj.stars = order === 'desc' ? -1 : 1;
-    else if (sort === 'updated') sortObj.updatedAt = order === 'desc' ? -1 : 1;
-    else if (sort === 'created') sortObj.createdAt = order === 'desc' ? -1 : 1;
-    else if (sort === 'name') sortObj.title = order === 'desc' ? -1 : 1;
+    if (sort === "stars") sortObj.stars = order === "desc" ? -1 : 1;
+    else if (sort === "updated") sortObj.updatedAt = order === "desc" ? -1 : 1;
+    else if (sort === "created") sortObj.createdAt = order === "desc" ? -1 : 1;
+    else if (sort === "name") sortObj.title = order === "desc" ? -1 : 1;
     else sortObj.fetchedAt = -1;
 
     const [repos, total] = await Promise.all([
@@ -143,8 +145,8 @@ export const getAdminRepositories = async (req: Request, res: Response) => {
         .sort(sortObj)
         .limit(Number(limit))
         .skip(Number(offset))
-        .select('-raw'),
-      Repo.countDocuments(query)
+        .select("-raw"),
+      Repo.countDocuments(query),
     ]);
 
     res.json({
@@ -165,12 +167,12 @@ export const getAdminRepositories = async (req: Request, res: Response) => {
 export const getFeaturedRepositories = async (req: Request, res: Response) => {
   try {
     const { limit = 6 } = req.query;
-    
+
     const repos = await (Repo as any).getFeatured(Number(limit));
-    
+
     res.json({
       repos,
-      count: repos.length
+      count: repos.length,
     });
   } catch (error) {
     logger.error("Error fetching featured repositories:", error);
@@ -181,12 +183,12 @@ export const getFeaturedRepositories = async (req: Request, res: Response) => {
 export const getPopularRepositories = async (req: Request, res: Response) => {
   try {
     const { limit = 10 } = req.query;
-    
+
     const repos = await (Repo as any).getPopular(Number(limit));
-    
+
     res.json({
       repos,
-      count: repos.length
+      count: repos.length,
     });
   } catch (error) {
     logger.error("Error fetching popular repositories:", error);
@@ -194,21 +196,24 @@ export const getPopularRepositories = async (req: Request, res: Response) => {
   }
 };
 
-export const getRepositoriesByLanguage = async (req: Request, res: Response) => {
+export const getRepositoriesByLanguage = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { language } = req.params;
     const { limit = 10 } = req.query;
-    
+
     if (!language) {
       return res.status(400).json({ error: "Language parameter is required" });
     }
-    
+
     const repos = await (Repo as any).getByLanguage(language, Number(limit));
-    
+
     res.json({
       language,
       repos,
-      count: repos.length
+      count: repos.length,
     });
   } catch (error) {
     logger.error("Error fetching repositories by language:", error);
@@ -219,9 +224,9 @@ export const getRepositoriesByLanguage = async (req: Request, res: Response) => 
 export const getRepositoryStats = async (req: Request, res: Response) => {
   try {
     const { provider } = req.query;
-    
+
     const stats = await socialService.getRepositoryStats(provider as string);
-    
+
     res.json(stats);
   } catch (error) {
     logger.error("Error fetching repository stats:", error);
@@ -236,13 +241,22 @@ export const updateRepository = async (req: Request, res: Response) => {
 
     // Only allow certain fields to be updated
     const allowedUpdates = [
-      'isFeatured', 'hidden', 'title', 'description', 'displayOrder',
-      'category', 'techStack', 'demoUrl', 'screenshots', 'isPublished',
-      'portfolioTitle', 'portfolioDescription'
+      "isFeatured",
+      "hidden",
+      "title",
+      "description",
+      "displayOrder",
+      "category",
+      "techStack",
+      "demoUrl",
+      "screenshots",
+      "isPublished",
+      "portfolioTitle",
+      "portfolioDescription",
     ];
-    
+
     const filteredUpdates = Object.keys(updates)
-      .filter(key => allowedUpdates.includes(key))
+      .filter((key) => allowedUpdates.includes(key))
       .reduce((obj, key) => {
         obj[key] = updates[key];
         return obj;
@@ -258,7 +272,10 @@ export const updateRepository = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Repository not found" });
     }
 
-    logger.info(`Repository updated: ${repo.title}`, { id, updates: Object.keys(filteredUpdates) });
+    logger.info(`Repository updated: ${repo.title}`, {
+      id,
+      updates: Object.keys(filteredUpdates),
+    });
 
     res.json(repo);
   } catch (error) {
@@ -278,13 +295,20 @@ export const bulkUpdateRepositories = async (req: Request, res: Response) => {
 
     // Only allow certain fields to be updated
     const allowedUpdates = [
-      'isFeatured', 'hidden', 'isPublished', 'displayOrder',
-      'category', 'techStack', 'demoUrl', 'screenshots',
-      'portfolioTitle', 'portfolioDescription'
+      "isFeatured",
+      "hidden",
+      "isPublished",
+      "displayOrder",
+      "category",
+      "techStack",
+      "demoUrl",
+      "screenshots",
+      "portfolioTitle",
+      "portfolioDescription",
     ];
-    
+
     const filteredUpdates = Object.keys(updates)
-      .filter(key => allowedUpdates.includes(key))
+      .filter((key) => allowedUpdates.includes(key))
       .reduce((obj, key) => {
         obj[key] = updates[key];
         return obj;
@@ -295,15 +319,15 @@ export const bulkUpdateRepositories = async (req: Request, res: Response) => {
       { $set: filteredUpdates }
     );
 
-    logger.info(`Bulk updated ${result.modifiedCount} repositories`, { 
-      repoIds, 
-      updates: Object.keys(filteredUpdates) 
+    logger.info(`Bulk updated ${result.modifiedCount} repositories`, {
+      repoIds,
+      updates: Object.keys(filteredUpdates),
     });
 
     res.json({
       message: `Successfully updated ${result.modifiedCount} repositories`,
       modifiedCount: result.modifiedCount,
-      matchedCount: result.matchedCount
+      matchedCount: result.matchedCount,
     });
   } catch (error) {
     logger.error("Error bulk updating repositories:", error);
@@ -314,27 +338,27 @@ export const bulkUpdateRepositories = async (req: Request, res: Response) => {
 export const publishRepository = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { 
-      portfolioTitle, 
-      portfolioDescription, 
-      category, 
-      techStack, 
+    const {
+      portfolioTitle,
+      portfolioDescription,
+      category,
+      techStack,
       demoUrl,
-      displayOrder 
+      displayOrder,
     } = req.body;
 
     const repo = await Repo.findByIdAndUpdate(
       id,
-      { 
-        $set: { 
+      {
+        $set: {
           isPublished: true,
           ...(portfolioTitle && { portfolioTitle }),
           ...(portfolioDescription && { portfolioDescription }),
           ...(category && { category }),
           ...(techStack && { techStack }),
           ...(demoUrl && { demoUrl }),
-          ...(displayOrder !== undefined && { displayOrder })
-        } 
+          ...(displayOrder !== undefined && { displayOrder }),
+        },
       },
       { new: true }
     );
@@ -347,7 +371,7 @@ export const publishRepository = async (req: Request, res: Response) => {
 
     res.json({
       message: "Repository published successfully",
-      repo
+      repo,
     });
   } catch (error) {
     logger.error("Error publishing repository:", error);
@@ -373,7 +397,7 @@ export const unpublishRepository = async (req: Request, res: Response) => {
 
     res.json({
       message: "Repository unpublished successfully",
-      repo
+      repo,
     });
   } catch (error) {
     logger.error("Error unpublishing repository:", error);
@@ -393,13 +417,13 @@ export const deleteRepository = async (req: Request, res: Response) => {
 
     logger.info(`Repository deleted: ${repo.title}`, { id });
 
-    res.json({ 
+    res.json({
       message: "Repository deleted successfully",
       deletedRepo: {
         id: repo._id,
         title: repo.title,
-        provider: repo.provider
-      }
+        provider: repo.provider,
+      },
     });
   } catch (error) {
     logger.error("Error deleting repository:", error);
@@ -410,10 +434,10 @@ export const deleteRepository = async (req: Request, res: Response) => {
 export const syncSingleRepository = async (req: Request, res: Response) => {
   try {
     const { repoName } = req.body;
-    
+
     if (!repoName) {
-      return res.status(400).json({ 
-        error: "Repository name is required" 
+      return res.status(400).json({
+        error: "Repository name is required",
       });
     }
 
@@ -422,33 +446,36 @@ export const syncSingleRepository = async (req: Request, res: Response) => {
 
     const provider = new GitHubProvider(username, token);
     const repoData = await provider.fetchSingle(repoName);
-    
+
     // Upsert the repository
     const repo = await Repo.findOneAndUpdate(
-      { provider: 'github', remoteId: repoData.remoteId },
+      { provider: "github", remoteId: repoData.remoteId },
       {
         $set: {
           ...repoData,
-          provider: 'github',
+          provider: "github",
           fetchedAt: new Date(),
-        }
+        },
       },
       { upsert: true, new: true }
     );
 
-    logger.info(`Single repository synced: ${repoName}`, { username, repoId: repo._id });
+    logger.info(`Single repository synced: ${repoName}`, {
+      username,
+      repoId: repo._id,
+    });
 
     res.json({
       success: true,
       message: `Successfully synced repository: ${repoName}`,
       username,
-      repo
+      repo,
     });
   } catch (error) {
     logger.error("Error syncing single repository:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to sync repository",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };
@@ -456,10 +483,10 @@ export const syncSingleRepository = async (req: Request, res: Response) => {
 export const getGitHubInfo = async (req: Request, res: Response) => {
   try {
     const { username, token } = getGitHubCredentials();
-    
+
     const provider = new GitHubProvider(username, token);
     const rateLimit = await provider.getRateLimit();
-    
+
     res.json({
       username,
       configured: true,
@@ -467,14 +494,15 @@ export const getGitHubInfo = async (req: Request, res: Response) => {
         limit: rateLimit.rate.limit,
         remaining: rateLimit.rate.remaining,
         reset: new Date(rateLimit.rate.reset * 1000),
-        used: rateLimit.rate.used
-      }
+        used: rateLimit.rate.used,
+      },
+      other: {},
     });
   } catch (error) {
     logger.error("Error getting GitHub info:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: "Failed to get GitHub information",
-      message: error instanceof Error ? error.message : "Unknown error"
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };

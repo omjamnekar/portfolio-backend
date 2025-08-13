@@ -5,6 +5,7 @@ import {
   Project,
   WorkExperience,
   AdditionalSection,
+  MyWork,
 } from "../models/Portfolio.js";
 import { logger } from "../utils/logger.js";
 
@@ -194,6 +195,7 @@ export const additionalSectionController = createGenericController(
   AdditionalSection,
   "AdditionalSection"
 );
+export const myWorkController = createGenericController(MyWork, "MyWork");
 
 // Specialized controllers with additional functionality
 

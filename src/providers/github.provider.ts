@@ -47,19 +47,21 @@ export class GitHubProvider implements SocialProvider {
     };
   }
 
-  async fetchAll(options: {
-    includePrivate?: boolean;
-    includeForks?: boolean;
-    sort?: 'created' | 'updated' | 'pushed' | 'full_name';
-    direction?: 'asc' | 'desc';
-    perPage?: number;
-  } = {}): Promise<SocialItem[]> {
+  async fetchAll(
+    options: {
+      includePrivate?: boolean;
+      includeForks?: boolean;
+      sort?: "created" | "updated" | "pushed" | "full_name";
+      direction?: "asc" | "desc";
+      perPage?: number;
+    } = {}
+  ): Promise<SocialItem[]> {
     const {
       includePrivate = false,
       includeForks = true,
-      sort = 'updated',
-      direction = 'desc',
-      perPage = 100
+      sort = "updated",
+      direction = "desc",
+      perPage = 100,
     } = options;
 
     try {
@@ -74,7 +76,7 @@ export class GitHubProvider implements SocialProvider {
           page,
           sort,
           direction,
-          type: includePrivate ? 'all' : 'public'
+          type: includePrivate ? "all" : "public",
         };
 
         logger.debug(`Fetching GitHub repos page ${page} for ${this.username}`);
@@ -85,41 +87,47 @@ export class GitHubProvider implements SocialProvider {
         });
 
         const repos = response.data as GitHubRepoResponse[];
-        
+
         if (repos.length === 0) {
           hasMore = false;
         } else {
           allRepos.push(...repos);
           page++;
-          
+
           // GitHub API rate limiting - be respectful
-          if (page > 10) { // Limit to 1000 repos max
+          if (page > 10) {
+            // Limit to 1000 repos max
             logger.warn(`Reached maximum page limit for ${this.username}`);
             hasMore = false;
           }
         }
       }
 
-      logger.info(`Fetched ${allRepos.length} repositories for ${this.username}`);
+      logger.info(
+        `Fetched ${allRepos.length} repositories for ${this.username}`
+      );
 
       // Filter and transform repos
-      const filteredRepos = allRepos.filter(repo => {
+      const filteredRepos = allRepos.filter((repo) => {
         if (!includeForks && repo.fork) return false;
         return true;
       });
 
       return filteredRepos.map((repo) => this.transformRepo(repo));
-
     } catch (error) {
       logger.error(`Error fetching GitHub repos for ${this.username}:`, error);
-      throw new Error(`Failed to fetch GitHub repositories: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to fetch GitHub repositories: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     }
   }
 
   async fetchSingle(repoName: string): Promise<SocialItem> {
     try {
       const url = `${this.baseUrl}/repos/${this.username}/${repoName}`;
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
       });
@@ -134,7 +142,7 @@ export class GitHubProvider implements SocialProvider {
   async fetchLanguages(repoName: string): Promise<Record<string, number>> {
     try {
       const url = `${this.baseUrl}/repos/${this.username}/${repoName}/languages`;
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
       });
@@ -149,10 +157,10 @@ export class GitHubProvider implements SocialProvider {
   async fetchContributors(repoName: string): Promise<any[]> {
     try {
       const url = `${this.baseUrl}/repos/${this.username}/${repoName}/contributors`;
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params: { per_page: 10 }
+        params: { per_page: 10 },
       });
 
       return response.data;
@@ -170,7 +178,7 @@ export class GitHubProvider implements SocialProvider {
       url: repo.html_url,
       language: repo.language ?? undefined,
       topics: repo.topics || [],
-      
+
       // Enhanced fields
       stars: repo.stargazers_count,
       forks: repo.forks_count,
@@ -188,7 +196,7 @@ export class GitHubProvider implements SocialProvider {
       updatedAt: new Date(repo.updated_at),
       pushedAt: new Date(repo.pushed_at),
       homepage: repo.homepage ?? undefined,
-      
+
       raw: repo,
     };
   }

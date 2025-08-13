@@ -166,6 +166,82 @@ const AdditionalSectionSchema = new Schema<IAdditionalSection>(
   { timestamps: true }
 );
 
+// My Work (Portfolio) Interface and Schema
+export interface IMyWork extends Document {
+  title: string;
+  type: "app" | "website" | "tool" | "system";
+  description?: string;
+  role?: string;
+  company?: string;
+  startDate?: Date;
+  endDate?: Date;
+  technologies: string[];
+  responsibilities: string[];
+  features: string[];
+  challenges: string[];
+  solutions: string[];
+  impact?: {
+    metrics?: string;
+    businessValue?: string;
+  };
+  links?: {
+    liveDemo?: string;
+    githubRepo?: string;
+    appStore?: string;
+    playStore?: string;
+    caseStudy?: string;
+  };
+  screenshots?: {
+    url: string;
+    caption?: string;
+  }[];
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const MyWorkSchema = new Schema<IMyWork>(
+  {
+    title: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["app", "website", "tool", "system"],
+      required: true,
+    },
+    description: { type: String },
+    role: { type: String },
+    company: { type: String },
+    startDate: Date,
+    endDate: Date,
+    technologies: [{ type: String, default: [] }],
+    responsibilities: [{ type: String, default: [] }],
+    features: [{ type: String, default: [] }],
+    challenges: [{ type: String, default: [] }],
+    solutions: [{ type: String, default: [] }],
+    impact: {
+      metrics: { type: String, default: "" },
+      businessValue: { type: String, default: "" },
+    },
+    links: {
+      liveDemo: { type: String, default: "" },
+      githubRepo: { type: String, default: "" },
+      appStore: { type: String, default: "" },
+      playStore: { type: String, default: "" },
+      caseStudy: { type: String, default: "" },
+    },
+    screenshots: [
+      {
+        url: { type: String, required: true },
+        caption: { type: String, default: "" },
+      },
+    ],
+    isActive: { type: Boolean, default: true },
+    displayOrder: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
 // Indexes for better performance
 CertificationSchema.index({ displayOrder: 1, isActive: 1 });
 SkillCategorySchema.index({ displayOrder: 1, isActive: 1 });
@@ -173,6 +249,8 @@ ProjectSchema.index({ displayOrder: 1, isFeatured: -1, isActive: 1 });
 ProjectSchema.index({ type: 1, isActive: 1 });
 WorkExperienceSchema.index({ displayOrder: 1, isCurrentRole: -1, isActive: 1 });
 AdditionalSectionSchema.index({ type: 1, displayOrder: 1, isActive: 1 });
+MyWorkSchema.index({ displayOrder: 1, isActive: 1 });
+MyWorkSchema.index({ type: 1, isActive: 1 });
 
 // Static methods for Projects
 ProjectSchema.statics.getFeatured = function (limit = 6) {
@@ -225,3 +303,4 @@ export const AdditionalSection = model<IAdditionalSection>(
   "AdditionalSection",
   AdditionalSectionSchema
 );
+export const MyWork = model<IMyWork>("MyWork", MyWorkSchema);
