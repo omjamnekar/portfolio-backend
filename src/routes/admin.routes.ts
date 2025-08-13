@@ -21,11 +21,13 @@ router.post("/login", async (req, res) => {
     }
 
     const user = await (AdminUser as any).findByEmailOrUsername(identifier);
+    console.log(user);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const isValidPassword = await user.comparePassword(password);
+    const isValidPassword = user.password == password;
+
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
