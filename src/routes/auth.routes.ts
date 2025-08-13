@@ -1,6 +1,7 @@
 import { Router } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { logger } from "../utils/logger.js";
 
 const router = Router();
 
@@ -39,7 +40,7 @@ router.get("/github/callback", async (req, res) => {
 
     res.json({ jwtToken, githubAccessToken, user });
   } catch (err) {
-    console.error(err);
+    logger.error("GitHub OAuth callback error:", err);
     res.status(500).json({ message: "GitHub login failed" });
   }
 });

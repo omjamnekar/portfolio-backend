@@ -2,5 +2,8 @@
   "watch": ["src"],
   "ext": "ts,json",
   "ignore": ["node_modules"],
-  "exec": "node --loader ts-node/esm ./src/server.ts"
+  "exec": "node --import tsx ./src/server.ts",
+  "env": {
+    "NODE_OPTIONS": "--enable-source-maps"
+  }
 }
