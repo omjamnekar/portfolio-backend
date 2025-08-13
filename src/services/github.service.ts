@@ -42,11 +42,11 @@ export class GitHubService {
       const provider = new GitHubProvider(username, token);
       const syncedRepos = await this.socialService.syncProvider(provider);
 
-      logger.info(`Synced ${syncedRepos.length} repositories for ${username}`);
+      logger.info(`Synced ${syncedRepos.total} repositories for ${username}`);
       return {
         success: true,
-        count: syncedRepos.length,
-        repos: syncedRepos,
+        count: syncedRepos.total,
+        repos: syncedRepos.repos,
       };
     } catch (error) {
       logger.error("Error syncing GitHub repos:", error);

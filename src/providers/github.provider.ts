@@ -166,9 +166,9 @@ export class GitHubProvider implements SocialProvider {
     return {
       remoteId: String(repo.id),
       title: repo.name,
-      description: repo.description,
+      description: repo.description ?? undefined,
       url: repo.html_url,
-      language: repo.language,
+      language: repo.language ?? undefined,
       topics: repo.topics || [],
       
       // Enhanced fields
@@ -187,7 +187,7 @@ export class GitHubProvider implements SocialProvider {
       createdAt: new Date(repo.created_at),
       updatedAt: new Date(repo.updated_at),
       pushedAt: new Date(repo.pushed_at),
-      homepage: repo.homepage,
+      homepage: repo.homepage ?? undefined,
       
       raw: repo,
     };
