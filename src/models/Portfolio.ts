@@ -5,13 +5,13 @@ export interface ICertification extends Document {
   name: string;
   issuer: string;
   issueDate?: Date;
-  expiryDate?: Date;
+  expired?: Date;
   credentialId?: string;
   credentialUrl?: string;
   description?: string;
   isActive: boolean;
   skills: [{ type: String }];
-  certificateImageUrl: String;
+  certificateUrl: String;
   displayOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -22,11 +22,11 @@ const CertificationSchema = new Schema<ICertification>(
     name: { type: String, required: true }, // title
     issuer: { type: String, required: true },
     issueDate: { type: Date }, // issuedDate
-    expiryDate: { type: Date },
+    expired: { type: Date },
     credentialId: { type: String },
     credentialUrl: { type: String },
-    skills: [{ type: String }], // array of skills covered
-    certificateImageUrl: { type: String }, // image or PDF preview link (optional)
+    skills: [{ type: String }], // array of skills covere d
+    certificateUrl: { type: String }, // image or PDF preview link (optional)
     description: { type: String },
     isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
@@ -49,7 +49,7 @@ const SkillCategorySchema = new Schema<ISkillCategory>(
   {
     category: { type: String, required: true, unique: true },
     skills: [{ type: String, required: true }],
-    description: String,
+    description: { try: String },
     isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },

@@ -12,37 +12,20 @@ import { logger } from "../utils/logger.js";
 const createGenericController = (Model: any, modelName: string) => {
   return {
     // Get all items
-    getAll: async (req: Request, res: Response) => {
+    getAll: async (_: Request, res: Response) => {
       try {
-        const {
-          isActive,
-          limit = 50,
-          offset = 0,
-          sort = "displayOrder",
-          order = "asc",
-        } = req.query;
-
-        const query: any = {};
-        if (isActive !== undefined) query.isActive = isActive === "true";
-
-        const sortObj: any = {};
-        sortObj[sort as string] = order === "desc" ? -1 : 1;
-
         const [items, total] = await Promise.all([
-          Model.find(query)
-            .sort(sortObj)
-            .limit(Number(limit))
-            .skip(Number(offset)),
-          Model.countDocuments(query),
+          Model.find(),
+          Model.countDocuments(),
         ]);
 
         res.json({
           [modelName.toLowerCase() + "s"]: items,
           pagination: {
             total,
-            limit: Number(limit),
-            offset: Number(offset),
-            hasMore: Number(offset) + items.length < total,
+            // limit: Number(limit),
+            // offset: Number(offset),
+            // hasMore: Number(offset) + items.length < total,
           },
         });
       } catch (error) {
@@ -78,9 +61,9 @@ const createGenericController = (Model: any, modelName: string) => {
         res.status(201).json(item);
       } catch (error) {
         logger.error(`Error creating ${modelName}:`, error);
-        res.status(400).json({ 
+        res.status(400).json({
           error: `Failed to create ${modelName}`,
-          message: error instanceof Error ? error.message : "Unknown error"
+          message: error instanceof Error ? error.message : "Unknown error",
         });
       }
     },
@@ -105,9 +88,9 @@ const createGenericController = (Model: any, modelName: string) => {
         res.json(item);
       } catch (error) {
         logger.error(`Error updating ${modelName}:`, error);
-        res.status(400).json({ 
+        res.status(400).json({
           error: `Failed to update ${modelName}`,
-          message: error instanceof Error ? error.message : "Unknown error"
+          message: error instanceof Error ? error.message : "Unknown error",
         });
       }
     },
@@ -123,12 +106,12 @@ const createGenericController = (Model: any, modelName: string) => {
         }
 
         logger.info(`${modelName} deleted:`, { id });
-        res.json({ 
+        res.json({
           message: `${modelName} deleted successfully`,
           deletedItem: {
             id: item._id,
-            name: item.name || item.title || item.company || "Unknown"
-          }
+            name: item.name || item.title || item.company || "Unknown",
+          },
         });
       } catch (error) {
         logger.error(`Error deleting ${modelName}:`, error);
@@ -150,9 +133,9 @@ const createGenericController = (Model: any, modelName: string) => {
           { $set: updates }
         );
 
-        logger.info(`Bulk updated ${result.modifiedCount} ${modelName}s`, { 
-          ids, 
-          updates: Object.keys(updates) 
+        logger.info(`Bulk updated ${result.modifiedCount} ${modelName}s`, {
+          ids,
+          updates: Object.keys(updates),
         });
 
         res.json({
@@ -177,7 +160,9 @@ const createGenericController = (Model: any, modelName: string) => {
 
         const result = await Model.deleteMany({ _id: { $in: ids } });
 
-        logger.info(`Bulk deleted ${result.deletedCount} ${modelName}s`, { ids });
+        logger.info(`Bulk deleted ${result.deletedCount} ${modelName}s`, {
+          ids,
+        });
 
         res.json({
           message: `Successfully deleted ${result.deletedCount} ${modelName}s`,
@@ -192,24 +177,36 @@ const createGenericController = (Model: any, modelName: string) => {
 };
 
 // Create controllers for each model
-export const certificationController = createGenericController(Certification, "Certification");
-export const skillCategoryController = createGenericController(SkillCategory, "SkillCategory");
+export const certificationController = createGenericController(
+  Certification,
+  "Certification"
+);
+export const skillCategoryController = createGenericController(
+  SkillCategory,
+  "SkillCategory"
+);
 export const projectController = createGenericController(Project, "Project");
-export const workExperienceController = createGenericController(WorkExperience, "WorkExperience");
-export const additionalSectionController = createGenericController(AdditionalSection, "AdditionalSection");
+export const workExperienceController = createGenericController(
+  WorkExperience,
+  "WorkExperience"
+);
+export const additionalSectionController = createGenericController(
+  AdditionalSection,
+  "AdditionalSection"
+);
 
 // Specialized controllers with additional functionality
 
 // Project-specific controllers
 export const projectSpecialController = {
   ...projectController,
-  
+
   // Get featured projects
   getFeatured: async (req: Request, res: Response) => {
     try {
       const { limit = 6 } = req.query;
       const projects = await (Project as any).getFeatured(Number(limit));
-      
+
       res.json({
         projects,
         count: projects.length,
@@ -225,9 +222,9 @@ export const projectSpecialController = {
     try {
       const { type } = req.params;
       const { limit = 10 } = req.query;
-      
+
       const projects = await (Project as any).getByType(type, Number(limit));
-      
+
       res.json({
         type,
         projects,
@@ -252,13 +249,15 @@ export const projectSpecialController = {
       project.isFeatured = !project.isFeatured;
       await project.save();
 
-      logger.info(`Project featured status toggled:`, { 
-        id, 
-        isFeatured: project.isFeatured 
+      logger.info(`Project featured status toggled:`, {
+        id,
+        isFeatured: project.isFeatured,
       });
 
       res.json({
-        message: `Project ${project.isFeatured ? 'featured' : 'unfeatured'} successfully`,
+        message: `Project ${
+          project.isFeatured ? "featured" : "unfeatured"
+        } successfully`,
         project,
       });
     } catch (error) {
@@ -271,12 +270,12 @@ export const projectSpecialController = {
 // Work Experience-specific controllers
 export const workExperienceSpecialController = {
   ...workExperienceController,
-  
+
   // Get current role
-  getCurrent: async (req: Request, res: Response) => {
+  getCurrent: async (_: Request, res: Response) => {
     try {
       const currentRole = await (WorkExperience as any).getCurrent();
-      
+
       if (!currentRole) {
         return res.status(404).json({ error: "No current role found" });
       }
@@ -326,7 +325,7 @@ export const workExperienceSpecialController = {
 // Additional Section-specific controllers
 export const additionalSectionSpecialController = {
   ...additionalSectionController,
-  
+
   // Get by type
   getByType: async (req: Request, res: Response) => {
     try {
@@ -353,7 +352,9 @@ export const additionalSectionSpecialController = {
       });
     } catch (error) {
       logger.error("Error fetching additional sections by type:", error);
-      res.status(500).json({ error: "Failed to fetch additional sections by type" });
+      res
+        .status(500)
+        .json({ error: "Failed to fetch additional sections by type" });
     }
   },
 };
@@ -361,7 +362,7 @@ export const additionalSectionSpecialController = {
 // Portfolio overview controller
 export const portfolioOverviewController = {
   // Get complete portfolio overview
-  getOverview: async (req: Request, res: Response) => {
+  getOverview: async (_: Request, res: Response) => {
     try {
       const [
         certifications,
@@ -370,7 +371,9 @@ export const portfolioOverviewController = {
         currentRole,
         recentProjects,
       ] = await Promise.all([
-        Certification.find({ isActive: true }).sort({ displayOrder: 1 }).limit(10),
+        Certification.find({ isActive: true })
+          .sort({ displayOrder: 1 })
+          .limit(10),
         SkillCategory.find({ isActive: true }).sort({ displayOrder: 1 }),
         (Project as any).getFeatured(6),
         (WorkExperience as any).getCurrent(),
@@ -405,7 +408,7 @@ export const portfolioOverviewController = {
   },
 
   // Get portfolio statistics
-  getStats: async (req: Request, res: Response) => {
+  getStats: async (_: Request, res: Response) => {
     try {
       const [
         totalCertifications,
