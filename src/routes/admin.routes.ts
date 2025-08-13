@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const isValidPassword = user.password == password;
+    const isValidPassword = await user.comparePassword(password);
 
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -134,7 +134,7 @@ router.post("/change-password", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isValidCurrentPassword = user.password === currentPassword;
+    const isValidCurrentPassword = user.comparePassword(currentPassword);
     if (!isValidCurrentPassword) {
       return res.status(400).json({ error: "Current password is incorrect" });
     }
