@@ -26,12 +26,6 @@ router.get("/portfolio/repos/popular", getPopularRepositories);
 router.get("/portfolio/repos/language/:language", getRepositoriesByLanguage);
 router.get("/portfolio/stats", getRepositoryStats);
 
-// Legacy public routes (for backward compatibility)
-router.get("/repos", getPortfolioRepositories);
-router.get("/repos/featured", getFeaturedRepositories);
-router.get("/repos/popular", getPopularRepositories);
-router.get("/repos/language/:language", getRepositoriesByLanguage);
-router.get("/repos/stats", getRepositoryStats);
 
 // Admin routes (Authentication required - all repos)
 router.get("/admin/repos", authMiddleware, getAdminRepositories);

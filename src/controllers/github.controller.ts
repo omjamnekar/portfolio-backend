@@ -109,13 +109,13 @@ export const getPortfolioRepositories = async (req: Request, res: Response) => {
 export const getAdminRepositories = async (req: Request, res: Response) => {
   try {
     const {
-      provider = "github",
-      featured,
-      hidden,
-      published,
-      language,
-      category,
-      isFork,
+      // provider = "github",
+      // featured,
+      // hidden,
+      // published,
+      // language,
+      // category,
+      // isFork,
       limit = 50,
       offset = 0,
       sort = "fetchedAt",
@@ -123,30 +123,26 @@ export const getAdminRepositories = async (req: Request, res: Response) => {
     } = req.query;
 
     // Build query
-    const query: any = { provider };
+    // const query: any = { provider };
 
-    if (featured !== undefined) query.isFeatured = featured === "true";
-    if (hidden !== undefined) query.hidden = hidden === "true";
-    if (published !== undefined) query.isPublished = published === "true";
-    if (language) query.language = language;
-    if (category) query.category = category;
-    if (isFork !== undefined) query.isFork = isFork === "true";
+    // if (featured !== undefined) query.isFeatured = featured === "true";
+    // if (hidden !== undefined) query.hidden = hidden === "true";
+    // if (published !== undefined) query.isPublished = published === "true";
+    // if (language) query.language = language;
+    // if (category) query.category = category;
+    // if (isFork !== undefined) query.isFork = isFork === "true";
 
-    // Build sort object
-    const sortObj: any = {};
-    if (sort === "stars") sortObj.stars = order === "desc" ? -1 : 1;
-    else if (sort === "updated") sortObj.updatedAt = order === "desc" ? -1 : 1;
-    else if (sort === "created") sortObj.createdAt = order === "desc" ? -1 : 1;
-    else if (sort === "name") sortObj.title = order === "desc" ? -1 : 1;
-    else sortObj.fetchedAt = -1;
+    // // Build sort object
+    // const sortObj: any = {};
+    // if (sort === "stars") sortObj.stars = order === "desc" ? -1 : 1;
+    // else if (sort === "updated") sortObj.updatedAt = order === "desc" ? -1 : 1;
+    // else if (sort === "created") sortObj.createdAt = order === "desc" ? -1 : 1;
+    // else if (sort === "name") sortObj.title = order === "desc" ? -1 : 1;
+    // else sortObj.fetchedAt = -1;
 
     const [repos, total] = await Promise.all([
-      Repo.find(query)
-        .sort(sortObj)
-        .limit(Number(limit))
-        .skip(Number(offset))
-        .select("-raw"),
-      Repo.countDocuments(query),
+      Repo.find(),
+      Repo.countDocuments(),
     ]);
 
     res.json({
