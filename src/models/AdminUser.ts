@@ -7,6 +7,9 @@ export interface IAdminUser extends Document {
   password: string;
   role: "admin" | "moderator";
   isActive: boolean;
+  totalLogins: number; // New field to track total logins
+  accountCreated: Date; // New field to track account creation date
+  profileUpdated: Date; // New field to track last profile update
   lastLogin?: Date;
   githubToken?: string;
   githubUsername?: string;

@@ -8,6 +8,7 @@ import githubRoutes from "./routes/github.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import portfolioRoutes from "./routes/portfolio.routes.js";
 import blogRoutes from "./routes/blog.routes.js";
+import userRoute from "./routes/user.routes.js";
 import { Repo } from "./models/Repo.js";
 import jwt from "jsonwebtoken";
 import { logger } from "./utils/logger.js";
@@ -45,8 +46,8 @@ app.get("/", (_, res) => {
     },
     github: {
       configured: !!(process.env.GITHUB_USERNAME && process.env.GITHUB_TOKEN),
-      username: process.env.GITHUB_USERNAME || "Not configured"
-    }
+      username: process.env.GITHUB_USERNAME || "Not configured",
+    },
   });
 });
 
@@ -74,6 +75,8 @@ app.use("/api/blog", blogRoutes);
 
 // Protected API routes
 app.use("/api/github", githubRoutes);
+
+app.use("/api/user", userRoute);
 
 // Repos API routes
 app.get("/api/repos", async (req, res) => {

@@ -32,7 +32,8 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Update last login
+    // Update last login and total logins
+    user.totalLogins += 1; // Increment total logins
     user.lastLogin = new Date();
     await user.save();
 

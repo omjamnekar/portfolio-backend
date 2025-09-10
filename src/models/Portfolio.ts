@@ -242,6 +242,41 @@ const MyWorkSchema = new Schema<IMyWork>(
   { timestamps: true }
 );
 
+// user data
+interface IUserData extends Document {
+  name: string;
+  title: string;
+  about: string;
+  contact: {
+    email: string;
+    phone: string;
+    location: string;
+  };
+  links: {
+    github: string;
+    linkedin: string;
+    x: string;
+  };
+  description: string;
+}
+
+const UserDataSectionSchema = new Schema<IUserData>({
+  name: String,
+  title: String,
+  about: String,
+  contact: {
+    email: String,
+    phone: String,
+    location: String,
+  },
+  links: {
+    github: String,
+    linkedin: String,
+    x: String,
+  },
+  description: String,
+});
+
 // Indexes for better performance
 CertificationSchema.index({ displayOrder: 1, isActive: 1 });
 SkillCategorySchema.index({ displayOrder: 1, isActive: 1 });
@@ -304,3 +339,11 @@ export const AdditionalSection = model<IAdditionalSection>(
   AdditionalSectionSchema
 );
 export const MyWork = model<IMyWork>("MyWork", MyWorkSchema);
+
+// user data
+
+export const UserDataSection = model<IUserData>(
+  "UserData",
+  UserDataSectionSchema,
+  "userdata"
+);
