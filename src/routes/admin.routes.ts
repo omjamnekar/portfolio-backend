@@ -21,16 +21,19 @@ router.post("/login", async (req, res) => {
     }
 
     const user = await (AdminUser as any).findByEmailOrUsername(identifier);
+    console.log(user);
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const isValidPassword = await user.comparePassword(password);
+
     if (!isValidPassword) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Update last login
+    // Update last login and total logins
+    user.totalLogins += 1; // Increment total logins
     user.lastLogin = new Date();
     await user.save();
 
@@ -132,7 +135,7 @@ router.post("/change-password", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const isValidCurrentPassword = await user.comparePassword(currentPassword);
+    const isValidCurrentPassword = user.comparePassword(currentPassword);
     if (!isValidCurrentPassword) {
       return res.status(400).json({ error: "Current password is incorrect" });
     }

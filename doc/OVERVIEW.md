@@ -16,6 +16,14 @@ GET /api/portfolio/skills            # Public skills
 GET /api/portfolio/projects          # Public projects
 GET /api/portfolio/projects/featured # Featured projects
 GET /api/portfolio/work-experience   # Public work experience
+GET /api/portfolio/mywork            # Public case studies
+GET /api/portfolio/mywork/:id        # Public single case study
+```
+
+Normal User (authenticated, non-admin) — additional access to MyWork:
+```http
+GET /api/portfolio/user/mywork       # Authenticated user: list MyWork
+GET /api/portfolio/user/mywork/:id   # Authenticated user: get MyWork by id
 ```
 
 ### 📁 `tests/blog/` - Blog Management
@@ -147,6 +155,51 @@ DELETE /api/portfolio/admin/additional/:id # Delete section
 }
 ```
 
+#### 7. **`mywork.http`** - MyWork CRUD
+**Authentication required** — Manage rich case studies and portfolio work entries:
+```http
+GET    /api/portfolio/admin/mywork              # Get all MyWork entries
+GET    /api/portfolio/admin/mywork/:id          # Get a MyWork entry by id
+POST   /api/portfolio/admin/mywork              # Create MyWork entry
+PATCH  /api/portfolio/admin/mywork/:id          # Update MyWork entry
+DELETE /api/portfolio/admin/mywork/:id          # Delete MyWork entry
+PATCH  /api/portfolio/admin/mywork/bulk/update  # Bulk update
+DELETE /api/portfolio/admin/mywork/bulk/delete  # Bulk delete
+```
+**Sample Create Request:**
+```json
+{
+  "title": "Example Project",
+  "type": "app",
+  "description": "A modern mobile app.",
+  "role": "Lead Engineer",
+  "company": "Acme Corp",
+  "startDate": "2024-01-01",
+  "endDate": "2024-06-01",
+  "technologies": ["React Native", "TypeScript", "Node.js"],
+  "responsibilities": ["Architecture", "CI/CD", "Feature development"],
+  "features": ["Offline mode", "Push notifications"],
+  "challenges": ["Complex state management"],
+  "solutions": ["Introduced Redux Toolkit"],
+  "impact": {
+    "metrics": "50k MAU in 3 months",
+    "businessValue": "Reduced churn by 12%"
+  },
+  "links": {
+    "liveDemo": "https://example.com/demo",
+    "githubRepo": "https://github.com/user/repo",
+    "appStore": "",
+    "playStore": "",
+    "caseStudy": "https://example.com/case-study"
+  },
+  "screenshots": [
+    { "url": "https://example.com/shot1.png", "caption": "Home screen" }
+  ],
+  "isActive": true,
+  "displayOrder": 0
+}
+```
+
 ## 🔐 **Authentication Test Files**
 
 ### 📁 `tests/auth/`
@@ -270,6 +323,7 @@ GET http://localhost:3000/api/portfolio/skills
 - **Certifications**: Store your professional certifications
 - **Skills**: Organize your technical skills by categories
 - **Projects**: Showcase your development projects
+- **MyWork**: Detailed work entries (apps, websites, tools, systems) with responsibilities, features, challenges, solutions, impact, links, and screenshots
 - **Work Experience**: Track your professional experience
 - **Additional Sections**: Store interests, languages, achievements, etc.
 

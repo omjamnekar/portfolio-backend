@@ -5,13 +5,13 @@ export interface ICertification extends Document {
   name: string;
   issuer: string;
   issueDate?: Date;
-  expiryDate?: Date;
+  expired?: Date;
   credentialId?: string;
   credentialUrl?: string;
   description?: string;
   isActive: boolean;
   skills: [{ type: String }];
-  certificateImageUrl: String;
+  certificateUrl: String;
   displayOrder: number;
   createdAt: Date;
   updatedAt: Date;
@@ -22,11 +22,11 @@ const CertificationSchema = new Schema<ICertification>(
     name: { type: String, required: true }, // title
     issuer: { type: String, required: true },
     issueDate: { type: Date }, // issuedDate
-    expiryDate: { type: Date },
+    expired: { type: Date },
     credentialId: { type: String },
     credentialUrl: { type: String },
-    skills: [{ type: String }], // array of skills covered
-    certificateImageUrl: { type: String }, // image or PDF preview link (optional)
+    skills: [{ type: String }], // array of skills covere d
+    certificateUrl: { type: String }, // image or PDF preview link (optional)
     description: { type: String },
     isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
@@ -49,7 +49,7 @@ const SkillCategorySchema = new Schema<ISkillCategory>(
   {
     category: { type: String, required: true, unique: true },
     skills: [{ type: String, required: true }],
-    description: String,
+    description: { try: String },
     isActive: { type: Boolean, default: true },
     displayOrder: { type: Number, default: 0 },
   },
@@ -166,6 +166,117 @@ const AdditionalSectionSchema = new Schema<IAdditionalSection>(
   { timestamps: true }
 );
 
+// My Work (Portfolio) Interface and Schema
+export interface IMyWork extends Document {
+  title: string;
+  type: "app" | "website" | "tool" | "system";
+  description?: string;
+  role?: string;
+  company?: string;
+  startDate?: Date;
+  endDate?: Date;
+  technologies: string[];
+  responsibilities: string[];
+  features: string[];
+  challenges: string[];
+  solutions: string[];
+  impact?: {
+    metrics?: string;
+    businessValue?: string;
+  };
+  links?: {
+    liveDemo?: string;
+    githubRepo?: string;
+    appStore?: string;
+    playStore?: string;
+    caseStudy?: string;
+  };
+  screenshots?: {
+    url: string;
+    caption?: string;
+  }[];
+  isActive: boolean;
+  displayOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const MyWorkSchema = new Schema<IMyWork>(
+  {
+    title: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["app", "website", "tool", "system"],
+      required: true,
+    },
+    description: { type: String },
+    role: { type: String },
+    company: { type: String },
+    startDate: Date,
+    endDate: Date,
+    technologies: [{ type: String, default: [] }],
+    responsibilities: [{ type: String, default: [] }],
+    features: [{ type: String, default: [] }],
+    challenges: [{ type: String, default: [] }],
+    solutions: [{ type: String, default: [] }],
+    impact: {
+      metrics: { type: String, default: "" },
+      businessValue: { type: String, default: "" },
+    },
+    links: {
+      liveDemo: { type: String, default: "" },
+      githubRepo: { type: String, default: "" },
+      appStore: { type: String, default: "" },
+      playStore: { type: String, default: "" },
+      caseStudy: { type: String, default: "" },
+    },
+    screenshots: [
+      {
+        url: { type: String, required: true },
+        caption: { type: String, default: "" },
+      },
+    ],
+    isActive: { type: Boolean, default: true },
+    displayOrder: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+// user data
+interface IUserData extends Document {
+  name: string;
+  title: string;
+  about: string;
+  contact: {
+    email: string;
+    phone: string;
+    location: string;
+  };
+  links: {
+    github: string;
+    linkedin: string;
+    x: string;
+  };
+  description: string;
+}
+
+const UserDataSectionSchema = new Schema<IUserData>({
+  name: String,
+  title: String,
+  about: String,
+  contact: {
+    email: String,
+    phone: String,
+    location: String,
+  },
+  links: {
+    github: String,
+    linkedin: String,
+    x: String,
+  },
+  description: String,
+});
+
 // Indexes for better performance
 CertificationSchema.index({ displayOrder: 1, isActive: 1 });
 SkillCategorySchema.index({ displayOrder: 1, isActive: 1 });
@@ -173,6 +284,8 @@ ProjectSchema.index({ displayOrder: 1, isFeatured: -1, isActive: 1 });
 ProjectSchema.index({ type: 1, isActive: 1 });
 WorkExperienceSchema.index({ displayOrder: 1, isCurrentRole: -1, isActive: 1 });
 AdditionalSectionSchema.index({ type: 1, displayOrder: 1, isActive: 1 });
+MyWorkSchema.index({ displayOrder: 1, isActive: 1 });
+MyWorkSchema.index({ type: 1, isActive: 1 });
 
 // Static methods for Projects
 ProjectSchema.statics.getFeatured = function (limit = 6) {
@@ -224,4 +337,13 @@ export const WorkExperience = model<IWorkExperience>(
 export const AdditionalSection = model<IAdditionalSection>(
   "AdditionalSection",
   AdditionalSectionSchema
+);
+export const MyWork = model<IMyWork>("MyWork", MyWorkSchema);
+
+// user data
+
+export const UserDataSection = model<IUserData>(
+  "UserData",
+  UserDataSectionSchema,
+  "userdata"
 );
