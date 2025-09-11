@@ -110,6 +110,7 @@ export interface IWorkExperience extends Document {
   startDate?: Date;
   endDate?: Date;
   location: string;
+  link: string;
   description: string;
   achievements: string[];
   technologies?: string[];
@@ -127,6 +128,7 @@ const WorkExperienceSchema = new Schema<IWorkExperience>(
     period: { type: String, required: true },
     startDate: Date,
     endDate: Date,
+    link: { type: String, required: true },
     location: { type: String, required: true },
     description: { type: String, required: true },
     achievements: [{ type: String, required: true }],
