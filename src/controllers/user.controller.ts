@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UserDataSection } from "../models/Portfolio";
+import { UserDataSection } from "../models/Portfolio.js";
 
 export const userDetailController = {
   getUserData: async (_: Request, res: Response) => {
