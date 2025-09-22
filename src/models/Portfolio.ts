@@ -191,8 +191,33 @@ export interface IMyWork extends Document {
     githubRepo?: string;
     appStore?: string;
     playStore?: string;
-    caseStudy?: string;
   };
+
+  caseStudy?: {
+    overview?: string; // Short narrative about the project context and goal
+    techStack?: {
+      technology: string;
+      purpose: string;
+      usage: string;
+    }[];
+    architecture?: string; // High-level architecture / flow of the system
+    featureMapping?: {
+      feature: string;
+      implementedWith: string[]; // Which tech/tools were used for that feature
+      description?: string; // How it works
+    }[];
+    designProcess?: string; // UI/UX approach, wireframes, prototyping
+    developmentProcess?: string; // Any specific methodology, sprint info, etc.
+    challengesFaced?: string[]; // List of challenges
+    solutionsApplied?: string[]; // How you solved the challenges
+    keyLearnings?: string[]; // Lessons learned or insights
+    impact?: {
+      metrics?: string; // Quantitative impact (e.g., reduced wait time by 50%)
+      businessValue?: string; // Qualitative impact (e.g., improved student satisfaction)
+    };
+    futureImprovements?: string[]; // Planned enhancements
+  };
+
   screenshots?: {
     url: string;
     caption?: string;
@@ -230,7 +255,34 @@ const MyWorkSchema = new Schema<IMyWork>(
       githubRepo: { type: String, default: "" },
       appStore: { type: String, default: "" },
       playStore: { type: String, default: "" },
-      caseStudy: { type: String, default: "" },
+    },
+    caseStudy: {
+      overview: { type: String, default: "" },
+      techStack: [
+        {
+          technology: { type: String, required: true },
+          purpose: { type: String, default: "" },
+          usage: { type: String, default: "" },
+        },
+      ],
+      architecture: { type: String, default: "" },
+      featureMapping: [
+        {
+          feature: { type: String, required: true },
+          implementedWith: [{ type: String, default: [] }],
+          description: { type: String, default: "" },
+        },
+      ],
+      designProcess: { type: String, default: "" },
+      developmentProcess: { type: String, default: "" },
+      challengesFaced: [{ type: String, default: [] }],
+      solutionsApplied: [{ type: String, default: [] }],
+      keyLearnings: [{ type: String, default: [] }],
+      impact: {
+        metrics: { type: String, default: "" },
+        businessValue: { type: String, default: "" },
+      },
+      futureImprovements: [{ type: String, default: [] }],
     },
     screenshots: [
       {
